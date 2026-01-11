@@ -9,3 +9,6 @@ notes/
 
 # Build artifacts
 *.tar.gz
+
+# LLM guidance (workspace-specific, not for repo)
+CLAUDE.md
