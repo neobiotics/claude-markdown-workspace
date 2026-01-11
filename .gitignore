@@ -1,0 +1,11 @@
+# Secrets - NIE committen!
+.env
+
+# Ephemeral container data
+claude-data/
+
+# Notes directory (personal content)
+notes/
+
+# Build artifacts
+*.tar.gz
