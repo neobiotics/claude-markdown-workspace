@@ -1,7 +1,7 @@
 # Claude Code + NoteDiscovery Setup
-# Notes liegen in ./notes - beide Container haben Zugriff
+# Notes stored in ./notes - both containers have access
 services:
-  # Web UI für Notes
+  # Web UI for notes
   notediscovery:
     image: ghcr.io/gamosoft/notediscovery:latest
     container_name: notediscovery
@@ -9,25 +9,25 @@ services:
       - 8800:8000
     volumes:
       - ./notes:/app/data
-    # Optional: Auth aktivieren
+    # Optional: Enable authentication
     # environment:
     #   - AUTHENTICATION_ENABLED=true
-    #   - AUTHENTICATION_PASSWORD=dein-passwort
+    #   - AUTHENTICATION_PASSWORD=your-password
     restart: unless-stopped
 
-  # Claude Code mit SSH-Zugang
+  # Claude Code with SSH access
   claude-code:
     build: ./claude-ssh
     container_name: claude-code
     ports:
       - 2222:22
     volumes:
-      # Notes-Verzeichnis (gleiches wie NoteDiscovery)
+      # Notes directory (same as NoteDiscovery)
       - ./notes:/workspace/notes
-      # Claude Config persistent halten
+      # Keep Claude config persistent
       - ./claude-data:/root/.claude
     environment:
-      # GitHub-User für SSH-Key-Import (komma-separiert)
+      # GitHub users for SSH key import (comma-separated)
       - GITHUB_USERS=${GITHUB_USERS}
       # Anthropic API Key
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}

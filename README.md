@@ -1,67 +1,67 @@
 # Claude Code + NoteDiscovery Setup
 
-Self-hosted Markdown Notes mit Web UI und Claude Code CLI via SSH.
+Self-hosted Markdown Notes with Web UI and Claude Code CLI via SSH.
 
-## Übersicht
+## Overview
 
-| Service | Zweck | Zugang |
-|---------|-------|--------|
-| **NoteDiscovery** | Web UI für Markdown Notes | `http://server:8800` |
-| **Claude Code** | AI-Assistant via SSH | `ssh -p 2222 root@server` |
+| Service | Purpose | Access |
+|---------|---------|--------|
+| **NoteDiscovery** | Web UI for Markdown Notes | `http://server:8800` |
+| **Claude Code** | AI Assistant via SSH | `ssh -p 2222 root@server` |
 
-Beide Container teilen sich das gleiche Notes-Verzeichnis.
+Both containers share the same notes directory.
 
-## Dateistruktur
+## File Structure
 
 ```
 project/
 ├── docker-compose.yml
-├── .env                    # Aus .env.example erstellen
+├── .env                    # Create from .env.example
 ├── .env.example
 ├── claude-ssh/
 │   ├── Dockerfile
 │   └── entrypoint.sh
-├── claude-data/            # Wird automatisch erstellt (Claude Config)
-└── notes/                  # Deine Markdown Notes
+├── claude-data/            # Created automatically (Claude Config)
+└── notes/                  # Your Markdown Notes
 ```
 
 ## Setup
 
-### 1. Repository klonen / Dateien kopieren
+### 1. Clone repository / Copy files
 
-### 2. Environment-Variablen konfigurieren
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-`.env` bearbeiten:
+Edit `.env`:
 ```bash
-GITHUB_USERS=dein-github-username
+GITHUB_USERS=your-github-username
 ANTHROPIC_API_KEY=sk-ant-xxxxx
 ```
 
-**Mehrere GitHub-User:** `GITHUB_USERS=user1,user2,user3` (ohne Leerzeichen)
+**Multiple GitHub users:** `GITHUB_USERS=user1,user2,user3` (no spaces)
 
-### 3. Notes-Verzeichnis anlegen (optional)
+### 3. Create notes directory (optional)
 
 ```bash
 mkdir -p notes
 ```
 
-### 4. Starten
+### 4. Start
 
 ```bash
 docker compose up -d --build
 ```
 
-Erster Build dauert ~5 Minuten (npm install).
+First build takes ~5 minutes (npm install).
 
-## Verwendung
+## Usage
 
 ### Web UI (NoteDiscovery)
 
-Browser öffnen: `http://server:8800`
+Open browser: `http://server:8800`
 
 ### Claude Code via SSH
 
@@ -71,90 +71,90 @@ cd /workspace/notes
 claude
 ```
 
-**Nützliche Befehle in Claude Code:**
-- `/status` - Auth-Methode, Model, Account
-- `/cost` - Bisherige API-Kosten
-- `/doctor` - Installation prüfen
-- `/init` - CLAUDE.md für Projekt erstellen
+**Useful Claude Code commands:**
+- `/status` - Auth method, model, account
+- `/cost` - API usage costs
+- `/doctor` - Check installation
+- `/init` - Create CLAUDE.md for project
 
-## Wie es funktioniert
+## How it works
 
-### SSH-Key Import
+### SSH Key Import
 
-Der Container holt SSH-Keys automatisch von GitHub beim Start:
-1. `GITHUB_USERS` wird gelesen
-2. `ssh-import-id-gh` holt Keys von `https://github.com/<user>.keys`
-3. Keys werden in `/root/.ssh/authorized_keys` geschrieben
+The container automatically fetches SSH keys from GitHub on startup:
+1. Reads `GITHUB_USERS` environment variable
+2. `ssh-import-id-gh` fetches keys from `https://github.com/<user>.keys`
+3. Keys are written to `/root/.ssh/authorized_keys`
 
 ### API Key Setup
 
-Statt Browser-OAuth wird der API Key direkt konfiguriert:
-1. Key wird in `/root/.bashrc` exportiert
-2. `~/.claude.json` markiert den Key als trusted (letzten 20 Zeichen)
-3. Onboarding wird übersprungen
+Instead of browser OAuth, the API key is configured directly:
+1. Key is exported in `/root/.bashrc`
+2. `~/.claude.json` marks the key as trusted (last 20 characters)
+3. Onboarding is skipped
 
-### Persistenz
+### Persistence
 
-| Pfad | Bind Mount | Persistiert? |
-|------|------------|--------------|
+| Path | Bind Mount | Persistent? |
+|------|------------|-------------|
 | `/workspace/notes` | `./notes` | ✅ |
 | `/root/.claude` | `./claude-data` | ✅ |
-| `/root/.claude.json` | - | ❌ (wird bei Start neu erstellt) |
+| `/root/.claude.json` | - | ❌ (recreated on start) |
 
 ## Troubleshooting
 
 ### SSH Permission denied
 
 ```bash
-# Prüfen ob Key auf GitHub ist
-curl https://github.com/DEIN_USERNAME.keys
+# Check if key exists on GitHub
+curl https://github.com/YOUR_USERNAME.keys
 
-# Container Logs checken
+# Check container logs
 docker compose logs claude-code
 ```
 
-### Claude Code startet nicht / will OAuth
+### Claude Code doesn't start / wants OAuth
 
 ```bash
-# Im Container prüfen
+# Check inside container
 docker exec -it claude-code bash
 echo $ANTHROPIC_API_KEY
 cat /root/.claude.json
 ```
 
-### Logs anzeigen
+### Show logs
 
 ```bash
 docker compose logs -f
 docker compose logs -f claude-code
 ```
 
-### Rebuild nach Änderungen
+### Rebuild after changes
 
 ```bash
 docker compose down && docker compose up -d --build
 ```
 
-## Anpassungen
+## Customization
 
-### Notes-Pfad ändern
+### Change notes path
 
-In `docker-compose.yml` beide Volumes anpassen:
+Adjust both volumes in `docker-compose.yml`:
 ```yaml
 volumes:
-  - /dein/pfad:/app/data          # NoteDiscovery
-  - /dein/pfad:/workspace/notes   # Claude Code
+  - /your/path:/app/data          # NoteDiscovery
+  - /your/path:/workspace/notes   # Claude Code
 ```
 
-### NoteDiscovery Auth aktivieren
+### Enable NoteDiscovery authentication
 
 ```yaml
 notediscovery:
   environment:
     - AUTHENTICATION_ENABLED=true
-    - AUTHENTICATION_PASSWORD=dein-passwort
+    - AUTHENTICATION_PASSWORD=your-password
 ```
 
-### Anderes Model verwenden
+### Use different model
 
-In Claude Code: `/model` oder beim Start: `claude --model opus`
+In Claude Code: `/model` or on startup: `claude --model opus`
