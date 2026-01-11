@@ -363,6 +363,29 @@ For production use with remote access:
 | Cost | Pay-per-use (Anthropic) | Pay-per-use (OVH) |
 | Setup Complexity | Low | Low |
 
+## Git Configuration in Container
+
+Since `/root/.ssh` is not persistent, use Personal Access Token for GitHub authentication:
+
+```bash
+# Configure git to store credentials in persistent directory
+git config --global credential.helper 'store --file=/root/.claude/.git-credentials'
+
+# On first push, Git will ask for credentials:
+git push
+# Username: neobiotics
+# Password: <paste personal access token>
+
+# Token is stored in /root/.claude/.git-credentials (survives container restarts)
+```
+
+**Create Personal Access Token**:
+1. https://github.com/settings/tokens/new
+2. Note: `claude-workspace`
+3. Expiration: 90 days or longer
+4. Scopes: Check `repo`
+5. Generate and copy token
+
 ## Differences from opencode-authelia-setup
 
 | Feature | This Project | opencode-authelia-setup |
