@@ -1,5 +1,7 @@
 # Claude Code + NoteDiscovery Setup
 
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
+
 Self-hosted Markdown Notes with Web UI and Claude Code CLI via SSH.
 
 ## Overview
