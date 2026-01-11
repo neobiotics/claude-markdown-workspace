@@ -158,3 +158,38 @@ notediscovery:
 ### Use different model
 
 In Claude Code: `/model` or on startup: `claude --model opus`
+
+## Git from Container (⚠️ Working, persistence not tested)
+
+Since `/root/.ssh` is not persistent, use GitHub Personal Access Token:
+
+### Setup
+
+```bash
+# Inside the claude-code container
+ssh -p 2222 root@server
+
+# Configure git to store credentials in persistent directory
+git config --global user.name "your-name"
+git config --global user.email "your@email.com"
+git config --global credential.helper 'store --file=/root/.claude/.git-credentials'
+```
+
+### First Push
+
+```bash
+git push
+# Username: your-github-username
+# Password: <paste your personal access token>
+```
+
+The token is stored in `/root/.claude/.git-credentials` (persistent bind mount).
+
+**Create Personal Access Token:**
+1. https://github.com/settings/tokens/new
+2. Note: `claude-workspace`
+3. Expiration: 90 days or longer
+4. Scopes: Check `repo`
+5. Generate and copy token
+
+**Note:** Credentials persist across container restarts since `/root/.claude` is mounted. However, full persistence has not been extensively tested.
